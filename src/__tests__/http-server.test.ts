@@ -71,3 +71,96 @@ describe('Scenario 1', () => {
     expect(response.statusCode).toBe(404);
   });
 });
+
+describe('Scenario 2', () => {
+  let server: http.Server | null = null;
+  const user = {
+    username: 'John Doe',
+    age: 42,
+    hobbies: ['fishing', 'hunting'],
+  };
+  const validUUID = '6ae109bd-a2c4-4a6c-a3b2-c9d9169330f0';
+  let userId = '';
+
+  beforeAll(() => {
+    server = startHTTPServer('localhost', 3001, dispatcher);
+  });
+
+  afterAll(() => {
+    server?.close();
+  });
+
+  it('1. Perform request with unsupported HTTP method', async () => {
+    const response = await request('http://localhost:3001/').patch('api/users');
+
+    expect(response.statusCode).toBe(400);
+  });
+
+  it('2. Perform request to non-existing endpoint', async () => {
+    const response = await request('http://localhost:3001/').post('not/exists');
+
+    expect(response.statusCode).toBe(404);
+  });
+
+  it('3. Attempt to get user using userId in invalid format', async () => {
+    const response = await request('http://localhost:3001/').get('api/users/invalid');
+
+    expect(response.statusCode).toBe(400);
+  });
+
+  it('4. Attempt to get user with non-existing userId', async () => {
+    const response = await request('http://localhost:3001/').get(`api/users/${validUUID}`);
+
+    expect(response.statusCode).toBe(404);
+  });
+
+  it('5. Attempt to create user with not all required fields provided', async () => {
+    const response = await request('http://localhost:3001/').post('api/users').send({
+      username: 'Martin',
+      age: 27,
+    });
+
+    expect(response.statusCode).toBe(400);
+  });
+
+  it('6. Attempt to update user with non-existing userId', async () => {
+    const response = await request('http://localhost:3001/').put(`api/users/${validUUID}`).send(user);
+
+    expect(response.statusCode).toBe(404);
+  });
+
+  it('7. Create a user with a POST api/users request', async () => {
+    const response = await request('http://localhost:3001/').post('api/users').send(user);
+
+    userId = response.body.id;
+    expect(response.statusCode).toBe(201);
+    expect(response.body).toMatchObject(user);
+    expect(typeof userId).toBe('string');
+  });
+
+  it('8. Attempt to update created user using userId in invalid format', async () => {
+    const response = await request('http://localhost:3001/').put('api/users/invalid').send(user);
+
+    expect(response.statusCode).toBe(400);
+  });
+
+  it('9. Attempt to update created user with not all required fields provided', async () => {
+    const response = await request('http://localhost:3001/').put(`api/users/${userId}`).send({
+      age: 42,
+    });
+
+    expect(response.statusCode).toBe(400);
+  });
+
+  it('10. Attempt to delete created user using userId in invalid format', async () => {
+    const response = await request('http://localhost:3001/').delete('api/users/invalid');
+
+    expect(response.statusCode).toBe(400);
+  });
+
+  it('11. Attempt to delete user with non-existing userId', async () => {
+    const response = await request('http://localhost:3001/').delete(`api/users/${validUUID}`);
+
+    expect(response.statusCode).toBe(404);
+  });
+});
