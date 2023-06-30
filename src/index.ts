@@ -16,5 +16,5 @@ server.on('clientError', (err, socket) => {
 });
 
 server.listen(PORT, SERVER_HOSTNAME, () => {
-  console.log(`Server running at http://${SERVER_HOSTNAME}:${PORT}`);
+  console.log(`Server with PID ${process.pid} running at http://${SERVER_HOSTNAME}:${PORT}`);
 });
