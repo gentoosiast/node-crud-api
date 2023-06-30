@@ -1,0 +1,33 @@
+{
+  "name": "crud-api",
+  "version": "1.0.0",
+  "description": "Node.js CRUD API: RS School NodeJS 2023 Q2 - Week 3 Task",
+  "private": true,
+  "main": "index.ts",
+  "type": "module",
+  "scripts": {
+    "build": "npm run clean && npx tsc",
+    "clean": "node clean-dist.js",
+    "lint": "npx eslint --fix src",
+    "prettier": "npx prettier --write .",
+    "start:dev": "ts-node --esm src/index.ts",
+    "start:prod": "npm run build && node dist/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Sergey Koksharov <gentoosiastic@gmail.com>",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20.3.2",
+    "@typescript-eslint/eslint-plugin": "^5.60.1",
+    "@typescript-eslint/parser": "^5.60.1",
+    "dotenv": "^16.3.1",
+    "eslint": "^8.43.0",
+    "eslint-config-prettier": "^8.8.0",
+    "prettier": "^2.8.8",
+    "typescript": "^5.0.4"
+  },
+  "dependencies": {
+    "ts-node": "^10.9.1"
+  }
+}
