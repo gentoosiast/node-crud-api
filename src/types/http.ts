@@ -13,3 +13,13 @@ export enum HTTPStatusCode {
   NotFound = 404,
   ServerError = 500,
 }
+
+export enum Endpoint {
+  USERS = '/api/users',
+  USERS_WITH_ID = '/api/users/:userId',
+}
+
+export interface EndpointData {
+  endpoint: Endpoint;
+  userId: string | null;
+}
