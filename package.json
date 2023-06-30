@@ -10,7 +10,7 @@
     "clean": "node clean-dist.js",
     "lint": "npx eslint --fix src",
     "prettier": "npx prettier --write .",
-    "start:dev": "ts-node --esm src/index.ts",
+    "start:dev": "nodemon --exec ts-node-esm src/index.ts",
     "start:prod": "npm run build && node dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -24,10 +24,9 @@
     "dotenv": "^16.3.1",
     "eslint": "^8.43.0",
     "eslint-config-prettier": "^8.8.0",
+    "nodemon": "^2.0.22",
     "prettier": "^2.8.8",
+    "ts-node": "^10.9.1",
     "typescript": "^5.0.4"
-  },
-  "dependencies": {
-    "ts-node": "^10.9.1"
   }
 }
