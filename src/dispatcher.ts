@@ -5,20 +5,22 @@ import { parseEndpoint } from './helpers/endpoints.js';
 import { sendPlaintextResponse } from './helpers/response.js';
 import { getRequestBody } from './helpers/request-body.js';
 import { HTTPStatusCode } from './types/http.js';
-import { InvalidEndpointError, InvalidHTTPMethodError } from './types/errors.js';
+import { InvalidEndpointError, InvalidHTTPMethodError, InvalidUUIDError, UserNotFoundError } from './types/errors.js';
 
 const controller = new Controller();
 
 const handleError = (res: http.ServerResponse, err: unknown): void => {
-  if (err instanceof InvalidEndpointError) {
-    sendPlaintextResponse(res, HTTPStatusCode.NotFound, `Error: ${err.message}`);
-  }
-
-  if (err instanceof InvalidHTTPMethodError) {
+  if (err instanceof InvalidUUIDError) {
     sendPlaintextResponse(res, HTTPStatusCode.BadRequest, `Error: ${err.message}`);
+  } else if (err instanceof UserNotFoundError) {
+    sendPlaintextResponse(res, HTTPStatusCode.NotFound, `Error: ${err.message}`);
+  } else if (err instanceof InvalidEndpointError) {
+    sendPlaintextResponse(res, HTTPStatusCode.NotFound, `Error: ${err.message}`);
+  } else if (err instanceof InvalidHTTPMethodError) {
+    sendPlaintextResponse(res, HTTPStatusCode.BadRequest, `Error: ${err.message}`);
+  } else {
+    sendPlaintextResponse(res, HTTPStatusCode.BadRequest, 'Error: Unknown error');
   }
-
-  sendPlaintextResponse(res, HTTPStatusCode.BadRequest, 'Error: Unknown error');
 };
 
 export const dispatcher = async (req: http.IncomingMessage, res: http.ServerResponse): Promise<void> => {
@@ -40,12 +42,13 @@ export const dispatcher = async (req: http.IncomingMessage, res: http.ServerResp
       }
 
       case HTTPMethod.PUT: {
-        //
+        const body = await getRequestBody(req);
+        controller.put(endpointData, body, res);
         break;
       }
 
       case HTTPMethod.DELETE: {
-        //
+        controller.delete(endpointData, res);
         break;
       }
 

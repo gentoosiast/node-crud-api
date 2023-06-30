@@ -7,8 +7,12 @@ export const sendPlaintextResponse = (res: http.ServerResponse, statusCode: HTTP
   res.end(data);
 };
 
-export const sendJSONResponse = (res: http.ServerResponse, statusCode: HTTPStatusCode, data: unknown): void => {
+export const sendJSONResponse = (res: http.ServerResponse, statusCode: HTTPStatusCode, data?: unknown): void => {
   res.statusCode = statusCode;
   res.setHeader('Content-Type', 'application/json');
-  res.end(JSON.stringify(data));
+  if (data) {
+    res.end(JSON.stringify(data));
+  } else {
+    res.end();
+  }
 };
