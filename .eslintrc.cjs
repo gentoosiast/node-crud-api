@@ -10,5 +10,13 @@ module.exports = {
     'max-lines-per-function': ['error', 40],
     '@typescript-eslint/explicit-function-return-type': 'error',
   },
+  overrides: [
+    {
+      files: ['**/*.test.[jt]s'],
+      rules: {
+        'max-lines-per-function': 'off',
+      },
+    },
+  ],
   root: true,
 };
