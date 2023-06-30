@@ -57,7 +57,7 @@ export class Store {
   }
 
   private findUserIndexByUserId(userId: string): number {
-    if (!validateUUID) {
+    if (!validateUUID(userId)) {
       throw new InvalidUUIDError();
     }
 
