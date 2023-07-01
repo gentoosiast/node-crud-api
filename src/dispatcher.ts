@@ -5,12 +5,20 @@ import { parseEndpoint } from './helpers/endpoints.js';
 import { sendPlaintextResponse } from './helpers/response.js';
 import { getRequestBody } from './helpers/request-body.js';
 import { HTTPStatusCode } from './types/http.js';
-import { InvalidEndpointError, InvalidHTTPMethodError, InvalidUUIDError, UserNotFoundError } from './types/errors.js';
+import {
+  InvalidEndpointError,
+  InvalidHTTPMethodError,
+  InvalidUUIDError,
+  InvalidUserDataError,
+  UserNotFoundError,
+} from './types/errors.js';
 
 const controller = new Controller();
 
 const handleError = (res: http.ServerResponse, err: unknown): void => {
   if (err instanceof InvalidUUIDError) {
+    sendPlaintextResponse(res, HTTPStatusCode.BadRequest, `Error: ${err.message}`);
+  } else if (err instanceof InvalidUserDataError) {
     sendPlaintextResponse(res, HTTPStatusCode.BadRequest, `Error: ${err.message}`);
   } else if (err instanceof UserNotFoundError) {
     sendPlaintextResponse(res, HTTPStatusCode.NotFound, `Error: ${err.message}`);
