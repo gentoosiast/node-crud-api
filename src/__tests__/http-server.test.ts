@@ -3,6 +3,7 @@ import { describe, expect, it, beforeAll, afterAll } from '@jest/globals';
 import request from 'supertest';
 import { startHTTPServer } from '../server.js';
 import { dispatcher } from '../dispatcher.js';
+import { validateUUID } from '../helpers/uuid.js';
 
 describe('Scenario 1', () => {
   let server: http.Server | null = null;
@@ -40,6 +41,7 @@ describe('Scenario 1', () => {
     expect(response.statusCode).toBe(201);
     expect(response.body).toMatchObject(user);
     expect(typeof userId).toBe('string');
+    expect(validateUUID(userId)).toBe(true);
   });
 
   it('3. Get user created on a previous step with a GET api/users/:userId request', async () => {
@@ -69,6 +71,7 @@ describe('Scenario 1', () => {
     const response = await request('http://localhost:3000/').get(`api/users/${userId}`);
 
     expect(response.statusCode).toBe(404);
+    expect(response.text).toBe('Error: User not found');
   });
 });
 
@@ -94,24 +97,28 @@ describe('Scenario 2', () => {
     const response = await request('http://localhost:3001/').patch('api/users');
 
     expect(response.statusCode).toBe(400);
+    expect(response.text).toBe('Error: Invalid HTTP method');
   });
 
   it('2. Perform request to non-existing endpoint', async () => {
     const response = await request('http://localhost:3001/').post('not/exists');
 
     expect(response.statusCode).toBe(404);
+    expect(response.text).toBe('Error: Request to non-existing endpoint');
   });
 
   it('3. Attempt to get user using userId in invalid format', async () => {
     const response = await request('http://localhost:3001/').get('api/users/invalid');
 
     expect(response.statusCode).toBe(400);
+    expect(response.text).toBe('Error: Invalid UUID format');
   });
 
   it('4. Attempt to get user with non-existing userId', async () => {
     const response = await request('http://localhost:3001/').get(`api/users/${validUUID}`);
 
     expect(response.statusCode).toBe(404);
+    expect(response.text).toBe('Error: User not found');
   });
 
   it('5. Attempt to create user with not all required fields provided', async () => {
@@ -121,12 +128,14 @@ describe('Scenario 2', () => {
     });
 
     expect(response.statusCode).toBe(400);
+    expect(response.text).toBe('Error: Invalid user data: required fields are missing or have wrong format');
   });
 
   it('6. Attempt to update user with non-existing userId', async () => {
     const response = await request('http://localhost:3001/').put(`api/users/${validUUID}`).send(user);
 
     expect(response.statusCode).toBe(404);
+    expect(response.text).toBe('Error: User not found');
   });
 
   it('7. Create a user with a POST api/users request', async () => {
@@ -136,12 +145,14 @@ describe('Scenario 2', () => {
     expect(response.statusCode).toBe(201);
     expect(response.body).toMatchObject(user);
     expect(typeof userId).toBe('string');
+    expect(validateUUID(userId)).toBe(true);
   });
 
   it('8. Attempt to update created user using userId in invalid format', async () => {
     const response = await request('http://localhost:3001/').put('api/users/invalid').send(user);
 
     expect(response.statusCode).toBe(400);
+    expect(response.text).toBe('Error: Invalid UUID format');
   });
 
   it('9. Attempt to update created user with not all required fields provided', async () => {
@@ -150,17 +161,20 @@ describe('Scenario 2', () => {
     });
 
     expect(response.statusCode).toBe(400);
+    expect(response.text).toBe('Error: Invalid user data: required fields are missing or have wrong format');
   });
 
   it('10. Attempt to delete created user using userId in invalid format', async () => {
     const response = await request('http://localhost:3001/').delete('api/users/invalid');
 
     expect(response.statusCode).toBe(400);
+    expect(response.text).toBe('Error: Invalid UUID format');
   });
 
   it('11. Attempt to delete user with non-existing userId', async () => {
     const response = await request('http://localhost:3001/').delete(`api/users/${validUUID}`);
 
     expect(response.statusCode).toBe(404);
+    expect(response.text).toBe('Error: User not found');
   });
 });
