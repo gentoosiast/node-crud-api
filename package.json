@@ -6,12 +6,11 @@
   "main": "index.ts",
   "type": "module",
   "scripts": {
-    "build": "npm run clean && npx tsc",
-    "clean": "node clean-dist.js",
+    "build": "webpack",
     "lint": "npx eslint --fix src",
     "prettier": "npx prettier --write .",
     "start:dev": "nodemon --exec ts-node-esm src/index.ts",
-    "start:prod": "npm run build && node dist/index.js",
+    "start:prod": "webpack && node dist/index.cjs",
     "test": "jest"
   },
   "keywords": [],
@@ -32,7 +31,10 @@
     "prettier": "^2.8.8",
     "supertest": "^6.3.3",
     "ts-jest": "^29.1.1",
+    "ts-loader": "^9.4.4",
     "ts-node": "^10.9.1",
-    "typescript": "^5.0.4"
+    "typescript": "^5.0.4",
+    "webpack": "^5.88.1",
+    "webpack-cli": "^5.1.4"
   }
 }

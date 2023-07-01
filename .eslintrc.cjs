@@ -17,6 +17,12 @@ module.exports = {
         'max-lines-per-function': 'off',
       },
     },
+    {
+      files: ['**/*.c?js'],
+      rules: {
+        '@typescript-eslint/explicit-function-return-type': 'off',
+      },
+    },
   ],
   root: true,
 };
