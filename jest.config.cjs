@@ -6,4 +6,7 @@ module.exports = {
   moduleNameMapper: {
     '(.+)\\.js': '$1',
   },
+  transform: {
+    '^.+\\.js$': 'babel-jest', // Add Babel transform for '.js' files
+  },
 };
