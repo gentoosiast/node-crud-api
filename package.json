@@ -11,6 +11,8 @@
     "prettier": "npx prettier --write .",
     "start:dev": "nodemon --exec ts-node-esm src/index.ts",
     "start:prod": "webpack && node dist/index.cjs",
+    "start:multi:dev": "nodemon --exec ts-node-esm src/index.ts -- --multi",
+    "start:multi:prod": "webpack && node dist/index.cjs -- --multi",
     "test": "jest"
   },
   "keywords": [],

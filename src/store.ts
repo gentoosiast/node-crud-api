@@ -1,7 +1,6 @@
-import { User } from './types/users.js';
-import { generateUUID, validateUUID } from './helpers/uuid.js';
-import { validateUserDto } from './helpers/users.js';
-import { InvalidUUIDError, InvalidUserDataError, UserNotFoundError } from './types/errors.js';
+import { User, UserDto, UserId } from './types/users.js';
+import { generateUUID } from './helpers/uuid.js';
+import { UserNotFoundError } from './types/errors.js';
 
 export class Store {
   constructor(private store: User[] = []) {}
@@ -10,17 +9,13 @@ export class Store {
     return this.store;
   }
 
-  public getUserById(userId: string): User {
+  public getUserById(userId: UserId): User {
     const userIdx = this.findUserIndexByUserId(userId);
 
     return this.store[userIdx];
   }
 
-  public createUser(userDto: unknown): User {
-    if (!validateUserDto(userDto)) {
-      throw new InvalidUserDataError();
-    }
-
+  public createUser(userDto: UserDto): User {
     const newUser = {
       ...userDto,
       id: generateUUID(),
@@ -31,11 +26,7 @@ export class Store {
     return newUser;
   }
 
-  public updateUser(userId: string, userDto: unknown): User {
-    if (!validateUserDto(userDto)) {
-      throw new InvalidUserDataError();
-    }
-
+  public updateUser(userId: UserId, userDto: UserDto): User {
     const userIdx = this.findUserIndexByUserId(userId);
     const user = this.store[userIdx];
 
@@ -50,17 +41,13 @@ export class Store {
     return updatedUser;
   }
 
-  public deleteUser(userId: string): void {
+  public deleteUser(userId: UserId): void {
     const userIdx = this.findUserIndexByUserId(userId);
 
     this.store.splice(userIdx, 1);
   }
 
-  private findUserIndexByUserId(userId: string): number {
-    if (!validateUUID(userId)) {
-      throw new InvalidUUIDError();
-    }
-
+  private findUserIndexByUserId(userId: UserId): number {
     const userIdx = this.store.findIndex((user) => user.id === userId);
 
     if (userIdx === -1) {

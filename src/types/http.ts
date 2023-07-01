@@ -21,5 +21,5 @@ export enum Endpoint {
 
 export interface EndpointData {
   endpoint: Endpoint;
-  userId: string | null;
+  userId?: string;
 }

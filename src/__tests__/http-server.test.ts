@@ -3,7 +3,7 @@ import { describe, expect, it, beforeAll, afterAll } from '@jest/globals';
 import request from 'supertest';
 import { startHTTPServer } from '../server.js';
 import { dispatcher } from '../dispatcher.js';
-import { validateUUID } from '../helpers/uuid.js';
+import { isUserId } from '../helpers/validators.js';
 
 describe('Scenario 1', () => {
   let server: http.Server | null = null;
@@ -41,7 +41,7 @@ describe('Scenario 1', () => {
     expect(response.statusCode).toBe(201);
     expect(response.body).toMatchObject(user);
     expect(typeof userId).toBe('string');
-    expect(validateUUID(userId)).toBe(true);
+    expect(isUserId(userId)).toBe(true);
   });
 
   it('3. Get user created on a previous step with a GET api/users/:userId request', async () => {
@@ -145,7 +145,7 @@ describe('Scenario 2', () => {
     expect(response.statusCode).toBe(201);
     expect(response.body).toMatchObject(user);
     expect(typeof userId).toBe('string');
-    expect(validateUUID(userId)).toBe(true);
+    expect(isUserId(userId)).toBe(true);
   });
 
   it('8. Attempt to update created user using userId in invalid format', async () => {

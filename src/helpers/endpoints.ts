@@ -5,7 +5,6 @@ export const parseEndpoint = (endpoint: string): EndpointData => {
   if (/^\/api\/users\/?$/.test(endpoint)) {
     return {
       endpoint: Endpoint.USERS,
-      userId: null,
     };
   }
 

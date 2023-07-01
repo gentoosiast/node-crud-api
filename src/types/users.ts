@@ -6,3 +6,5 @@ export interface User {
 }
 
 export type UserDto = Omit<User, 'id'>;
+
+export type UserId = string;
