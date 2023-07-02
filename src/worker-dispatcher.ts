@@ -6,6 +6,7 @@ import { Result, WorkerMessage } from './types/worker.js';
 import { getRequestBody } from './helpers/request-body.js';
 import { isParentMessage } from './helpers/validators.js';
 import { sendJSONResponse, sendPlaintextResponse } from './helpers/response.js';
+import { sendErrorResponse } from './error-handler.js';
 
 const sendMessageToParent = (message: WorkerMessage): void => {
   process.send?.(JSON.stringify(message));
@@ -33,7 +34,6 @@ const actOnParentMessage = (res: http.ServerResponse, message: string): void => 
   }
 };
 
-// eslint-disable-next-line
 export const dispatcher = async (req: http.IncomingMessage, res: http.ServerResponse): Promise<void> => {
   const { url = '' } = req;
 
@@ -69,6 +69,6 @@ export const dispatcher = async (req: http.IncomingMessage, res: http.ServerResp
     }
     process.once('message', (message: string) => actOnParentMessage(res, message));
   } catch (err) {
-    // handleError(res, err);
+    sendErrorResponse(res, err);
   }
 };
