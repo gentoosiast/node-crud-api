@@ -11,37 +11,37 @@ export enum ErrorMessage {
 }
 
 export class InvalidUUIDError extends Error {
-  constructor(message = ErrorMessage.InvalidUUIDError, public statusCode = HTTPStatusCode.BadRequest) {
+  constructor(message: string = ErrorMessage.InvalidUUIDError, public statusCode = HTTPStatusCode.BadRequest) {
     super(message);
   }
 }
 
 export class InvalidUserDataError extends Error {
-  constructor(message = ErrorMessage.InvalidUserDataError, public statusCode = HTTPStatusCode.BadRequest) {
+  constructor(message: string = ErrorMessage.InvalidUserDataError, public statusCode = HTTPStatusCode.BadRequest) {
     super(message);
   }
 }
 
 export class UserNotFoundError extends Error {
-  constructor(message = ErrorMessage.UserNotFoundError, public statusCode = HTTPStatusCode.NotFound) {
+  constructor(message: string = ErrorMessage.UserNotFoundError, public statusCode = HTTPStatusCode.NotFound) {
     super(message);
   }
 }
 
 export class InvalidEndpointError extends Error {
-  constructor(message = ErrorMessage.InvalidEndpointError, public statusCode = HTTPStatusCode.NotFound) {
+  constructor(message: string = ErrorMessage.InvalidEndpointError, public statusCode = HTTPStatusCode.NotFound) {
     super(message);
   }
 }
 
 export class InvalidHTTPMethodError extends Error {
-  constructor(message = ErrorMessage.InvalidHTTPMethodError, public statusCode = HTTPStatusCode.BadRequest) {
+  constructor(message: string = ErrorMessage.InvalidHTTPMethodError, public statusCode = HTTPStatusCode.BadRequest) {
     super(message);
   }
 }
 
 export class ServerError extends Error {
-  constructor(message = ErrorMessage.ServerError, public statusCode = HTTPStatusCode.ServerError) {
+  constructor(message: string = ErrorMessage.ServerError, public statusCode = HTTPStatusCode.ServerError) {
     super(message);
   }
 }
