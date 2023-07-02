@@ -1,3 +1,5 @@
+import { HTTPStatusCode } from './http.js';
+
 export enum ErrorMessage {
   InvalidUUIDError = 'Invalid UUID format',
   InvalidUserDataError = 'Invalid user data: required fields are missing or have wrong format',
@@ -9,37 +11,37 @@ export enum ErrorMessage {
 }
 
 export class InvalidUUIDError extends Error {
-  constructor(message = ErrorMessage.InvalidUUIDError) {
+  constructor(message = ErrorMessage.InvalidUUIDError, public statusCode = HTTPStatusCode.BadRequest) {
     super(message);
   }
 }
 
 export class InvalidUserDataError extends Error {
-  constructor(message = ErrorMessage.InvalidUserDataError) {
+  constructor(message = ErrorMessage.InvalidUserDataError, public statusCode = HTTPStatusCode.BadRequest) {
     super(message);
   }
 }
 
 export class UserNotFoundError extends Error {
-  constructor(message = ErrorMessage.UserNotFoundError) {
+  constructor(message = ErrorMessage.UserNotFoundError, public statusCode = HTTPStatusCode.NotFound) {
     super(message);
   }
 }
 
 export class InvalidEndpointError extends Error {
-  constructor(message = ErrorMessage.InvalidEndpointError) {
+  constructor(message = ErrorMessage.InvalidEndpointError, public statusCode = HTTPStatusCode.NotFound) {
     super(message);
   }
 }
 
 export class InvalidHTTPMethodError extends Error {
-  constructor(message = ErrorMessage.InvalidHTTPMethodError) {
+  constructor(message = ErrorMessage.InvalidHTTPMethodError, public statusCode = HTTPStatusCode.BadRequest) {
     super(message);
   }
 }
 
 export class ServerError extends Error {
-  constructor(message = ErrorMessage.ServerError) {
+  constructor(message = ErrorMessage.ServerError, public statusCode = HTTPStatusCode.ServerError) {
     super(message);
   }
 }
