@@ -1,8 +1,8 @@
 import { Store } from './store.js';
-import { Endpoint } from './types/http.js';
-import { InvalidEndpointError, InvalidUUIDError, InvalidUserDataError } from './types/errors.js';
-import { User, UserDto } from './types/users.js';
 import { isUserDto, isUserId } from './helpers/validators.js';
+import { InvalidEndpointError, InvalidUUIDError, InvalidUserDataError } from './types/errors.js';
+import { Endpoint } from './types/http.js';
+import { User, UserDto } from './types/users.js';
 
 export class Controller {
   constructor(private store = new Store()) {}
