@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { startHTTPServer } from './server.js';
 import { isWorkerMessage } from './helpers/validators.js';
 import { createBalancer } from './balancer-dispatcher.js';
-import { Controller } from './cluster-controller.js';
+import { Controller } from './worker-controller.js';
 import { HTTPMethod, HTTPStatusCode } from './types/http.js';
 import { ResponseError } from './types/response.js';
 import { ParentMessage, Result, WorkerMessage } from './types/worker.js';
