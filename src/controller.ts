@@ -12,7 +12,7 @@ export class Controller {
       return this.store.getAll();
     } else if (endpoint === Endpoint.USERS_WITH_ID) {
       if (!isUserId(userId)) {
-        throw new InvalidUserDataError();
+        throw new InvalidUUIDError();
       }
       return this.store.getUserById(userId);
     } else {
@@ -51,7 +51,7 @@ export class Controller {
     }
 
     if (!isUserId(userId)) {
-      throw new InvalidUserDataError();
+      throw new InvalidUUIDError();
     }
 
     const user = this.store.updateUser(userId, body);
