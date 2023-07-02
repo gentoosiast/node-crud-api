@@ -1,7 +1,7 @@
 module.exports = {
-  extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended', 'prettier'],
+  extends: ['eslint:recommended', 'plugin:import/recommended', 'plugin:@typescript-eslint/recommended', 'prettier'],
   parser: '@typescript-eslint/parser',
-  plugins: ['@typescript-eslint'],
+  plugins: ['import', '@typescript-eslint'],
   env: {
     node: true,
   },
@@ -24,5 +24,11 @@ module.exports = {
       },
     },
   ],
+  settings: {
+    'import/resolver': {
+      typescript: true,
+      node: true,
+    },
+  },
   root: true,
 };
