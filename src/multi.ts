@@ -1,8 +1,8 @@
 import cluster, { Worker } from 'node:cluster';
 import { availableParallelism } from 'node:os';
-import path, { dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import path from 'node:path';
 import { startHTTPServer } from './server.js';
+import { getModuleDirectory } from './helpers/fs-utils.js';
 import { isWorkerMessage } from './helpers/validators.js';
 import { createBalancer } from './balancer-dispatcher.js';
 import { Controller } from './controller.js';
@@ -11,8 +11,6 @@ import { ResponseError } from './types/response.js';
 import { ParentMessage, Result, WorkerMessage } from './types/worker.js';
 import { ErrorMessage, HTTPError, InvalidHTTPMethodError } from './types/errors.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 const numCores = availableParallelism();
 
 const handleWorkerExit = (activeWorkers: Map<number, number>, worker: Worker): void => {
@@ -106,7 +104,7 @@ export const startCluster = (hostname: string, basePort: number): void => {
   const controller = new Controller();
 
   cluster.setupPrimary({
-    exec: path.join(__dirname, 'worker.ts'),
+    exec: path.join(getModuleDirectory(import.meta.url), 'worker.ts'),
   });
 
   for (let i = 1; i < numCores; i++) {
