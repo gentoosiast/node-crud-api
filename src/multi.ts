@@ -9,7 +9,7 @@ import { Controller } from './controller.js';
 import { HTTPMethod, HTTPStatusCode } from './types/http.js';
 import { ResponseError } from './types/response.js';
 import { ParentMessage, Result, WorkerMessage } from './types/worker.js';
-import { ErrorMessage, HTTPError } from './types/errors.js';
+import { ErrorMessage, HTTPError, InvalidHTTPMethodError } from './types/errors.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -89,6 +89,10 @@ const actOnWorkerMessage = (controller: Controller, message: WorkerMessage): Par
       case HTTPMethod.DELETE: {
         controller.delete(message.endpoint, message.userId);
         return { result: Result.Success, response: { statusCode: HTTPStatusCode.NoContent, data: null } };
+      }
+
+      default: {
+        throw new InvalidHTTPMethodError();
       }
     }
   } catch (err) {
