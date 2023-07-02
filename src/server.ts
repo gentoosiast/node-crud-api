@@ -1,4 +1,5 @@
 import http from 'node:http';
+import { getProcessType } from './helpers/processes.js';
 
 export const startHTTPServer = (hostname: string, port: number, dispatcher: http.RequestListener): http.Server => {
   const server = http.createServer(dispatcher);
@@ -12,7 +13,7 @@ export const startHTTPServer = (hostname: string, port: number, dispatcher: http
   });
 
   server.listen(port, hostname, () => {
-    console.log(`Server with PID ${process.pid} running at http://${hostname}:${port}`);
+    console.log(`${getProcessType()} with PID ${process.pid} running at http://${hostname}:${port}`);
   });
 
   return server;

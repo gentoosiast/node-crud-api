@@ -2,11 +2,8 @@ import 'dotenv/config';
 import { startCluster } from './multi.js';
 import { startHTTPServer } from './server.js';
 import { dispatcher } from './dispatcher.js';
+import { isMultiMode } from './helpers/cli.js';
 import { DEFAULT_SERVER_PORT, SERVER_HOSTNAME } from './constants/index.js';
-
-export const isMultiMode = (): boolean => {
-  return process.argv.includes('--multi');
-};
 
 const PORT = parseInt(process.env.PORT ?? '', 10) || DEFAULT_SERVER_PORT;
 
