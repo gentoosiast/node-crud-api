@@ -7,17 +7,9 @@ import { isWorkerMessage } from './helpers/validators.js';
 import { createBalancer } from './balancer-dispatcher.js';
 import { Controller } from './cluster-controller.js';
 import { HTTPMethod, HTTPStatusCode } from './types/http.js';
-import { ErrorResponses, ResponseError } from './types/response.js';
+import { ResponseError } from './types/response.js';
 import { ParentMessage, Result, WorkerMessage } from './types/worker.js';
-import {
-  ErrorMessage,
-  ErrorType,
-  InvalidEndpointError,
-  InvalidHTTPMethodError,
-  InvalidUUIDError,
-  InvalidUserDataError,
-  UserNotFoundError,
-} from './types/errors.js';
+import { ErrorMessage, HTTPError } from './types/errors.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -67,25 +59,12 @@ const parseWorkerMessage = (message: string): WorkerMessage | null => {
 };
 
 const getErrorResponse = (error: unknown): ResponseError => {
-  const defaultError: ResponseError = {
-    type: ErrorType.UnknownError,
-    statusCode: HTTPStatusCode.BadRequest,
-    message: ErrorMessage.UnknownError,
-  };
-  if (error instanceof SyntaxError) {
-    return ErrorResponses.get(ErrorType.SyntaxError) ?? defaultError;
-  } else if (error instanceof InvalidUUIDError) {
-    return ErrorResponses.get(ErrorType.InvalidUUIDError) ?? defaultError;
-  } else if (error instanceof InvalidUserDataError) {
-    return ErrorResponses.get(ErrorType.InvalidUserDataError) ?? defaultError;
-  } else if (error instanceof UserNotFoundError) {
-    return ErrorResponses.get(ErrorType.UserNotFoundError) ?? defaultError;
-  } else if (error instanceof InvalidEndpointError) {
-    return ErrorResponses.get(ErrorType.InvalidEndpointError) ?? defaultError;
-  } else if (error instanceof InvalidHTTPMethodError) {
-    return ErrorResponses.get(ErrorType.InvalidHTTPMethodError) ?? defaultError;
+  if (error instanceof HTTPError) {
+    return { statusCode: error.statusCode, message: error.message };
+  } else if (error instanceof Error) {
+    return { statusCode: HTTPStatusCode.ServerError, message: error.message };
   } else {
-    return ErrorResponses.get(ErrorType.UnknownError) ?? defaultError;
+    return { statusCode: HTTPStatusCode.ServerError, message: ErrorMessage.UnknownError };
   }
 };
 

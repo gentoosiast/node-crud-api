@@ -1,4 +1,4 @@
-import { ErrorMessage, ErrorType } from '../types/errors.js';
+import { ErrorMessage } from '../types/errors.js';
 import { HTTPMethod, HTTPStatusCode } from '../types/http.js';
 import { ResponseError, ResponseSuccess } from '../types/response.js';
 import { UserDto, UserId } from '../types/users.js';
@@ -43,8 +43,6 @@ export const isResponseError = (message: unknown): message is ResponseError => {
     typeof message === 'object' &&
     'statusCode' in message &&
     isHTTPStatusCode(message.statusCode) &&
-    'type' in message &&
-    isMemberOfStringEnum(ErrorType, message.type) &&
     'message' in message &&
     isMemberOfStringEnum(ErrorMessage, message.message)
   ) {
