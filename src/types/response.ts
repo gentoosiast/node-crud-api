@@ -61,4 +61,12 @@ export const ErrorResponses: Map<ErrorType, ResponseError> = new Map([
       message: ErrorMessage.InvalidHTTPMethodError,
     },
   ],
+  [
+    ErrorType.ServerError,
+    {
+      type: ErrorType.ServerError,
+      statusCode: HTTPStatusCode.ServerError,
+      message: ErrorMessage.ServerError,
+    },
+  ],
 ]);

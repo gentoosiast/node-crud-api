@@ -1,10 +1,10 @@
 import cluster, { Worker } from 'node:cluster';
-import http from 'node:http';
 import { availableParallelism } from 'node:os';
 import path, { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { startHTTPServer } from './server.js';
 import { isWorkerMessage } from './helpers/validators.js';
+import { createBalancer } from './balancer-dispatcher.js';
 import { Controller } from './cluster-controller.js';
 import { HTTPMethod, HTTPStatusCode } from './types/http.js';
 import { ErrorResponses, ResponseError } from './types/response.js';
@@ -18,7 +18,6 @@ import {
   InvalidUserDataError,
   UserNotFoundError,
 } from './types/errors.js';
-import { getRequestBody } from './helpers/request-body.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -118,7 +117,6 @@ const actOnWorkerMessage = (controller: Controller, message: WorkerMessage): Par
   }
 };
 
-// eslint-disable-next-line
 export const startCluster = (hostname: string, basePort: number): void => {
   const activeWorkers = new Map<number, number>();
   const workers: Worker[] = [];
@@ -152,27 +150,7 @@ export const startCluster = (hostname: string, basePort: number): void => {
     });
   }
 
-  let currentWorkerIdx = 0;
-  startHTTPServer(hostname, basePort, async (req: http.IncomingMessage, res: http.ServerResponse) => {
-    console.log('making request');
-    const request = http.request(
-      { hostname, port: basePort + currentWorkerIdx + 1, path: req.url, method: req.method, headers: req.headers },
-      (response) => {
-        console.log('got response');
-        res.statusCode = response.statusCode ?? 400;
-        const contentType = response.headers?.['content-type'] ?? 'text/plain';
-        res.setHeader('Content-Type', contentType);
-        response.pipe(res);
-      }
-    );
-    request.on('error', (err) => {
-      console.error(`request error: ${err.message}`);
-    });
-    request.write(await getRequestBody(req));
-    request.end();
-    currentWorkerIdx = (currentWorkerIdx + 1) % (numCores - 1);
-  });
-
+  startHTTPServer(hostname, basePort, createBalancer(hostname, basePort + 1, numCores - 1));
   cluster.on('exit', (worker) => {
     handleWorkerExit(activeWorkers, worker);
   });
