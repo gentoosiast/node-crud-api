@@ -1,35 +1,32 @@
 import http from 'node:http';
 import { parseEndpoint } from './helpers/endpoints.js';
-import { HTTPMethod } from './types/http.js';
-import { ErrorMessage, InvalidHTTPMethodError, ServerError } from './types/errors.js';
-import { Result, WorkerMessage } from './types/worker.js';
 import { getRequestBody } from './helpers/request-body.js';
-import { isParentMessage } from './helpers/validators.js';
 import { sendJSONResponse, sendPlaintextResponse, sendErrorResponse } from './helpers/response.js';
+import { isParentMessage } from './helpers/validators.js';
+import { InvalidHTTPMethodError, ServerError } from './types/errors.js';
+import { HTTPMethod } from './types/http.js';
+import { Result, WorkerMessage } from './types/worker.js';
 
 const sendMessageToParent = (message: WorkerMessage): void => {
   process.send?.(JSON.stringify(message));
 };
 
 const actOnParentMessage = (res: http.ServerResponse, message: string): void => {
-  console.error(`got message from parent: ${process.env.PORT} ${message}`);
   try {
     const parentMessage: unknown = JSON.parse(message);
     if (!isParentMessage(parentMessage)) {
-      throw new ServerError('Parent message have invalid format' as ErrorMessage);
+      throw new ServerError('Message received from parent have invalid format');
     }
+
     if (parentMessage.result === Result.Error) {
       const { statusCode, message } = parentMessage.response;
       sendPlaintextResponse(res, statusCode, message);
-    } else if (parentMessage.result === Result.Success) {
+    } else {
       const { statusCode, data } = parentMessage.response;
       sendJSONResponse(res, statusCode, data);
-    } else {
-      throw new Error('Unknown parent message result');
     }
   } catch (err) {
-    console.error(err);
-    res.end();
+    sendErrorResponse(res, err);
   }
 };
 
