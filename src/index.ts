@@ -14,5 +14,5 @@ if (isMultiMode()) {
   console.log('Starting in cluster mode');
   startCluster(SERVER_HOSTNAME, PORT);
 } else {
-  await startHTTPServer(SERVER_HOSTNAME, PORT, dispatcher);
+  startHTTPServer(SERVER_HOSTNAME, PORT, dispatcher);
 }
