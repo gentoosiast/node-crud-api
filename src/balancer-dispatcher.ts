@@ -1,6 +1,6 @@
 import http from 'node:http';
 import { getRequestBody } from './helpers/request-body.js';
-import { sendErrorResponse } from './error-handler.js';
+import { sendErrorResponse } from './helpers/response.js';
 import { ServerError } from './types/errors.js';
 
 const handleResponse = (workerResponse: http.IncomingMessage, res: http.ServerResponse): void => {

@@ -1,5 +1,4 @@
-import { HTTPMethod } from './http.js';
-import { Endpoint } from './http.js';
+import { HTTPMethod , Endpoint } from './http.js';
 import { ResponseError, ResponseSuccess } from './response.js';
 
 export enum Result {

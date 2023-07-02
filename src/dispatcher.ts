@@ -2,8 +2,7 @@ import http from 'node:http';
 import { Controller } from './controller.js';
 import { parseEndpoint } from './helpers/endpoints.js';
 import { getRequestBody } from './helpers/request-body.js';
-import { sendJSONResponse } from './helpers/response.js';
-import { sendErrorResponse } from './error-handler.js';
+import { sendJSONResponse, sendErrorResponse } from './helpers/response.js';
 import { HTTPMethod, HTTPStatusCode } from './types/http.js';
 import { InvalidHTTPMethodError } from './types/errors.js';
 

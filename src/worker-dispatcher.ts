@@ -5,8 +5,7 @@ import { ErrorMessage, InvalidHTTPMethodError, ServerError } from './types/error
 import { Result, WorkerMessage } from './types/worker.js';
 import { getRequestBody } from './helpers/request-body.js';
 import { isParentMessage } from './helpers/validators.js';
-import { sendJSONResponse, sendPlaintextResponse } from './helpers/response.js';
-import { sendErrorResponse } from './error-handler.js';
+import { sendJSONResponse, sendPlaintextResponse, sendErrorResponse } from './helpers/response.js';
 
 const sendMessageToParent = (message: WorkerMessage): void => {
   process.send?.(JSON.stringify(message));
