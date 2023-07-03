@@ -51,14 +51,3 @@ export class ServerError extends HTTPError {
     super(message);
   }
 }
-
-export enum ErrorType {
-  InvalidUUIDError = 'InvalidUUIDError',
-  InvalidUserDataError = 'InvalidUserDataError',
-  UserNotFoundError = 'UserNotFoundError',
-  InvalidEndpointError = 'InvalidEndpointError',
-  InvalidHTTPMethodError = 'InvalidHTTPMethodError',
-  SyntaxError = 'SyntaxError',
-  ServerError = 'ServerError',
-  UnknownError = 'UnknownError',
-}
