@@ -20,10 +20,10 @@ export const sendJSONResponse = (res: http.ServerResponse, statusCode: HTTPStatu
 
 export const sendErrorResponse = (res: http.ServerResponse, err: unknown): void => {
   if (err instanceof HTTPError) {
-    sendPlaintextResponse(res, err.statusCode, err.message);
+    sendPlaintextResponse(res, err.statusCode, `Error: ${err.message}`);
   } else if (err instanceof Error) {
-    sendPlaintextResponse(res, HTTPStatusCode.ServerError, err.message);
+    sendPlaintextResponse(res, HTTPStatusCode.ServerError, `Error: ${err.message}`);
   } else {
-    sendPlaintextResponse(res, HTTPStatusCode.ServerError, 'Unknown error');
+    sendPlaintextResponse(res, HTTPStatusCode.ServerError, 'Error: Unknown error');
   }
 };
