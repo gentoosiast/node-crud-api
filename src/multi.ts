@@ -53,8 +53,11 @@ const getErrorResponse = (error: unknown): ResponseError => {
   }
 };
 
-const actOnWorkerMessage = (controller: Controller, unparsedMessage: string): ParentMessage => {
+const actOnWorkerMessage = (controller: Controller, unparsedMessage: unknown): ParentMessage => {
   try {
+    if (typeof unparsedMessage !== 'string') {
+      throw new ServerError('Worker message have invalid format');
+    }
     const message = parseWorkerMessage(unparsedMessage);
     switch (message.method) {
       case HTTPMethod.GET: {
@@ -109,11 +112,11 @@ const createWorkers = (
     }
     workerPromises.push(
       new Promise((resolve) => {
-        worker.on('online', () => {
-          resolve();
-        });
-
-        worker.on('message', (message: string) => {
+        worker.on('message', (message: unknown) => {
+          if (typeof message === 'number') {
+            resolve();
+            return;
+          }
           const result = actOnWorkerMessage(controller, message);
           worker.send(JSON.stringify(result));
         });

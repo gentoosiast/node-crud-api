@@ -1,4 +1,6 @@
+import cluster from 'node:cluster';
 import http from 'node:http';
+import { isMultiMode } from './helpers/cli.js';
 import { getProcessType } from './helpers/processes.js';
 
 export const startHTTPServer = async (
@@ -22,6 +24,9 @@ export const startHTTPServer = async (
     });
 
     server.on('listening', () => {
+      if (isMultiMode() && cluster.isWorker) {
+        process.send?.(process.pid);
+      }
       resolve(server);
     });
 
