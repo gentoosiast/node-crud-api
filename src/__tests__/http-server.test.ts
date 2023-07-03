@@ -85,8 +85,8 @@ describe('Scenario 2', () => {
   const validUUID = '6ae109bd-a2c4-4a6c-a3b2-c9d9169330f0';
   let userId = '';
 
-  beforeAll(() => {
-    server = startHTTPServer('localhost', 3001, dispatcher);
+  beforeAll(async () => {
+    server = await startHTTPServer('localhost', 3001, dispatcher);
   });
 
   afterAll(() => {
