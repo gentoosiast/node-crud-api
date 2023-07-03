@@ -46,7 +46,7 @@ export const processRequest = async (
   }
 };
 
-export const createDispatcher = (): http.RequestListener => {
+export const createDispatcher = async (): Promise<http.RequestListener> => {
   const controller = new Controller();
 
   return async (req, res) => {

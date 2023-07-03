@@ -23,7 +23,7 @@ describe('Scenario 1', () => {
   const BASE_URL = `http://localhost:${SERVER_PORT}/`;
 
   beforeAll(async () => {
-    server = await startHTTPServer('localhost', SERVER_PORT, createDispatcher());
+    server = await startHTTPServer('localhost', SERVER_PORT, await createDispatcher());
   });
 
   afterAll(() => {
@@ -91,7 +91,7 @@ describe('Scenario 2', () => {
   const BASE_URL = `http://localhost:${SERVER_PORT}/`;
 
   beforeAll(async () => {
-    server = await startHTTPServer('localhost', SERVER_PORT, createDispatcher());
+    server = await startHTTPServer('localhost', SERVER_PORT, await createDispatcher());
   });
 
   afterAll(() => {
@@ -203,7 +203,7 @@ describe('Scenario 3', () => {
   const BASE_URL = `http://localhost:${SERVER_PORT}/`;
 
   beforeAll(async () => {
-    server = await startHTTPServer('localhost', SERVER_PORT, createDispatcher());
+    server = await startHTTPServer('localhost', SERVER_PORT, await createDispatcher());
   });
 
   afterAll(() => {

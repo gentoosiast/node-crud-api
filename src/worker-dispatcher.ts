@@ -30,41 +30,43 @@ const actOnParentMessage = (res: http.ServerResponse, message: string): void => 
   }
 };
 
-export const dispatcher = async (req: http.IncomingMessage, res: http.ServerResponse): Promise<void> => {
-  const { url = '' } = req;
+export const createDispatcher = async (): Promise<http.RequestListener> => {
+  return async (req, res) => {
+    const { url = '' } = req;
 
-  try {
-    const { endpoint, userId } = parseEndpoint(url);
+    try {
+      const { endpoint, userId } = parseEndpoint(url);
 
-    switch (req.method) {
-      case HTTPMethod.GET: {
-        sendMessageToParent({ method: HTTPMethod.GET, endpoint, userId });
-        break;
+      switch (req.method) {
+        case HTTPMethod.GET: {
+          sendMessageToParent({ method: HTTPMethod.GET, endpoint, userId });
+          break;
+        }
+
+        case HTTPMethod.POST: {
+          const body = await getRequestBody(req);
+          sendMessageToParent({ method: HTTPMethod.POST, endpoint, body });
+          break;
+        }
+
+        case HTTPMethod.PUT: {
+          const body = await getRequestBody(req);
+          sendMessageToParent({ method: HTTPMethod.PUT, endpoint, userId, body });
+          break;
+        }
+
+        case HTTPMethod.DELETE: {
+          sendMessageToParent({ method: HTTPMethod.DELETE, endpoint, userId });
+          break;
+        }
+
+        default: {
+          throw new InvalidHTTPMethodError();
+        }
       }
-
-      case HTTPMethod.POST: {
-        const body = await getRequestBody(req);
-        sendMessageToParent({ method: HTTPMethod.POST, endpoint, body });
-        break;
-      }
-
-      case HTTPMethod.PUT: {
-        const body = await getRequestBody(req);
-        sendMessageToParent({ method: HTTPMethod.PUT, endpoint, userId, body });
-        break;
-      }
-
-      case HTTPMethod.DELETE: {
-        sendMessageToParent({ method: HTTPMethod.DELETE, endpoint, userId });
-        break;
-      }
-
-      default: {
-        throw new InvalidHTTPMethodError();
-      }
+      process.once('message', (message: string) => actOnParentMessage(res, message));
+    } catch (err) {
+      sendErrorResponse(res, err);
     }
-    process.once('message', (message: string) => actOnParentMessage(res, message));
-  } catch (err) {
-    sendErrorResponse(res, err);
-  }
+  };
 };

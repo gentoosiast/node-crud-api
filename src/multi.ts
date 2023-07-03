@@ -1,9 +1,7 @@
 import cluster, { Worker } from 'node:cluster';
 import http from 'node:http';
 import { availableParallelism } from 'node:os';
-import path from 'node:path';
 import { startHTTPServer } from './server.js';
-import { getModuleDirectory } from './helpers/fs-utils.js';
 import { isWorkerMessage } from './helpers/validators.js';
 import { createBalancer } from './balancer-dispatcher.js';
 import { Controller } from './controller.js';
@@ -126,13 +124,9 @@ const createWorkers = (
   return workerPromises;
 };
 
-export const startCluster = async (hostname: string, basePort: number): Promise<http.Server> => {
+export const startCluster = async (hostname: string, basePort: number): Promise<http.Server | undefined> => {
   const numCores = availableParallelism();
   const activeWorkers = new Map<number, number>();
-
-  cluster.setupPrimary({
-    exec: path.join(getModuleDirectory(import.meta.url), 'worker.ts'),
-  });
 
   cluster.on('exit', (worker) => {
     handleWorkerExit(activeWorkers, hostname, worker);
