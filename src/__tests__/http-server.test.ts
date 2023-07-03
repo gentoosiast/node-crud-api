@@ -19,8 +19,8 @@ describe('Scenario 1', () => {
   };
   let userId = '';
 
-  beforeAll(() => {
-    server = startHTTPServer('localhost', 3000, dispatcher);
+  beforeAll(async () => {
+    server = await startHTTPServer('localhost', 3000, dispatcher);
   });
 
   afterAll(() => {

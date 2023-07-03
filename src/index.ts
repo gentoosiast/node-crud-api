@@ -8,8 +8,10 @@ import { DEFAULT_SERVER_PORT, SERVER_HOSTNAME } from './constants/index.js';
 const PORT = parseInt(process.env.PORT ?? '', 10) || DEFAULT_SERVER_PORT;
 
 if (isMultiMode()) {
-  console.log('Starting in cluster mode');
-  startCluster(SERVER_HOSTNAME, PORT);
+  console.log('Starting in cluster mode with round-robin load balancer');
+  await startCluster(SERVER_HOSTNAME, PORT);
+  console.log('Cluster is fully operational and ready to receive requests');
 } else {
-  startHTTPServer(SERVER_HOSTNAME, PORT, dispatcher);
+  await startHTTPServer(SERVER_HOSTNAME, PORT, dispatcher);
+  console.log('Server is fully operational and ready to receive requests');
 }

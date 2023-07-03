@@ -1,4 +1,5 @@
 import cluster, { Worker } from 'node:cluster';
+import http from 'node:http';
 import { availableParallelism } from 'node:os';
 import path from 'node:path';
 import { startHTTPServer } from './server.js';
@@ -6,14 +7,12 @@ import { getModuleDirectory } from './helpers/fs-utils.js';
 import { isWorkerMessage } from './helpers/validators.js';
 import { createBalancer } from './balancer-dispatcher.js';
 import { Controller } from './controller.js';
+import { ErrorMessage, HTTPError, InvalidHTTPMethodError, ServerError } from './types/errors.js';
 import { HTTPMethod, HTTPStatusCode } from './types/http.js';
 import { ResponseError } from './types/response.js';
 import { ParentMessage, Result, WorkerMessage } from './types/worker.js';
-import { ErrorMessage, HTTPError, InvalidHTTPMethodError } from './types/errors.js';
 
-const numCores = availableParallelism();
-
-const handleWorkerExit = (activeWorkers: Map<number, number>, worker: Worker): void => {
+const handleWorkerExit = (activeWorkers: Map<number, number>, hostname: string, worker: Worker): void => {
   const deadWorkerPid = worker.process.pid;
   if (!deadWorkerPid) {
     console.error("Something wrong: can't determine PID of killed worker");
@@ -21,12 +20,12 @@ const handleWorkerExit = (activeWorkers: Map<number, number>, worker: Worker): v
   }
   console.error(`worker ${deadWorkerPid} has been killed`);
   const workerPort = activeWorkers.get(deadWorkerPid);
+  activeWorkers.delete(deadWorkerPid);
   if (!workerPort) {
     console.error("Something wrong: can't determine port of killed worker");
     return;
   }
-  const newWorker = cluster.fork({ PORT: workerPort });
-  activeWorkers.delete(deadWorkerPid);
+  const newWorker = cluster.fork({ HOSTNAME: hostname, PORT: workerPort });
   const newWorkerPid = newWorker.process.pid;
   if (!newWorkerPid) {
     console.error("Something wrong: can't determine port of newly created worker");
@@ -35,25 +34,13 @@ const handleWorkerExit = (activeWorkers: Map<number, number>, worker: Worker): v
   activeWorkers.set(newWorkerPid, workerPort);
 };
 
-const parseWorkerMessage = (message: string): WorkerMessage | null => {
-  try {
-    const workerMessage: unknown = JSON.parse(message);
-    if (!isWorkerMessage(workerMessage)) {
-      throw new Error('Worker message have invalid format');
-    }
-
-    return workerMessage;
-  } catch (err) {
-    if (err instanceof SyntaxError) {
-      console.error(`Failed to parse worker message: ${err.message}`);
-    }
-
-    if (err instanceof Error) {
-      console.error(err.message);
-    }
-
-    return null;
+const parseWorkerMessage = (message: string): WorkerMessage => {
+  const workerMessage: unknown = JSON.parse(message);
+  if (!isWorkerMessage(workerMessage)) {
+    throw new ServerError('Worker message have invalid format');
   }
+
+  return workerMessage;
 };
 
 const getErrorResponse = (error: unknown): ResponseError => {
@@ -66,8 +53,9 @@ const getErrorResponse = (error: unknown): ResponseError => {
   }
 };
 
-const actOnWorkerMessage = (controller: Controller, message: WorkerMessage): ParentMessage => {
+const actOnWorkerMessage = (controller: Controller, unparsedMessage: string): ParentMessage => {
   try {
+    const message = parseWorkerMessage(unparsedMessage);
     switch (message.method) {
       case HTTPMethod.GET: {
         const result = controller.get(message.endpoint, message.userId);
@@ -98,41 +86,56 @@ const actOnWorkerMessage = (controller: Controller, message: WorkerMessage): Par
   }
 };
 
-export const startCluster = (hostname: string, basePort: number): void => {
-  const activeWorkers = new Map<number, number>();
-  const workers: Worker[] = [];
+const createWorkers = (
+  hostname: string,
+  basePort: number,
+  numCores: number,
+  activeWorkers: Map<number, number>
+): Promise<void>[] => {
   const controller = new Controller();
-
-  cluster.setupPrimary({
-    exec: path.join(getModuleDirectory(import.meta.url), 'worker.ts'),
-  });
+  const workerPromises: Promise<void>[] = [];
 
   for (let i = 1; i < numCores; i++) {
     const worker = cluster.fork({
       HOSTNAME: hostname,
       PORT: basePort + i,
     });
-    workers.push(worker);
+
     const newWorkerPid = worker.process.pid;
     if (!newWorkerPid) {
       console.error("Something wrong: can't determine port of newly created worker");
     } else {
       activeWorkers.set(newWorkerPid, basePort + i);
     }
+    workerPromises.push(
+      new Promise((resolve) => {
+        worker.on('online', () => {
+          resolve();
+        });
 
-    worker.on('message', (message: string) => {
-      const workerMessage = parseWorkerMessage(message);
-      if (!workerMessage) {
-        return;
-      }
-      const result = actOnWorkerMessage(controller, workerMessage);
-      console.error(`sending message to worker: ${newWorkerPid}`);
-      worker.send(JSON.stringify(result));
-    });
+        worker.on('message', (message: string) => {
+          const result = actOnWorkerMessage(controller, message);
+          worker.send(JSON.stringify(result));
+        });
+      })
+    );
   }
+  return workerPromises;
+};
 
-  startHTTPServer(hostname, basePort, createBalancer(hostname, basePort + 1, numCores - 1));
-  cluster.on('exit', (worker) => {
-    handleWorkerExit(activeWorkers, worker);
+export const startCluster = async (hostname: string, basePort: number): Promise<http.Server> => {
+  const numCores = availableParallelism();
+  const activeWorkers = new Map<number, number>();
+
+  cluster.setupPrimary({
+    exec: path.join(getModuleDirectory(import.meta.url), 'worker.ts'),
   });
+
+  cluster.on('exit', (worker) => {
+    handleWorkerExit(activeWorkers, hostname, worker);
+  });
+
+  await Promise.all(createWorkers(hostname, basePort, numCores, activeWorkers));
+
+  return startHTTPServer(hostname, basePort, createBalancer(hostname, basePort + 1, numCores - 1));
 };
