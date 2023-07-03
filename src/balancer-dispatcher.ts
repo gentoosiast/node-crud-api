@@ -28,6 +28,9 @@ export const createBalancer = (
 
   return async (req, res) => {
     try {
+      console.log(
+        `Load balancer dispatching request to http://${workerHostname}:${workerStartPort + currentWorkerIdx}`
+      );
       const request = http.request(
         {
           hostname: workerHostname,
