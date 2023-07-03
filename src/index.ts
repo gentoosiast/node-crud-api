@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import { startCluster } from './multi.js';
 import { startHTTPServer } from './server.js';
-import { dispatcher } from './dispatcher.js';
+import { createDispatcher } from './dispatcher.js';
 import { isMultiMode } from './helpers/cli.js';
 import { DEFAULT_SERVER_PORT, SERVER_HOSTNAME } from './constants/index.js';
 
@@ -12,6 +12,6 @@ if (isMultiMode()) {
   await startCluster(SERVER_HOSTNAME, PORT);
   console.log('Cluster is fully operational and ready to receive requests');
 } else {
-  await startHTTPServer(SERVER_HOSTNAME, PORT, dispatcher);
+  await startHTTPServer(SERVER_HOSTNAME, PORT, createDispatcher());
   console.log('Server is fully operational and ready to receive requests');
 }
